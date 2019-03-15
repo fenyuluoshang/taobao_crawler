@@ -1,5 +1,6 @@
 from networktest import networktest
 import sqlite3
+import time
 
 tableinit = '''
 CREATE TABLE IF NOT EXISTS "data" (
@@ -13,8 +14,17 @@ if __name__ == '__main__':
     c = sq.cursor()
     c.execute(tableinit)
     sq.close()
-    for i in range(0, 100):
+    # for i in range(0, 100):
+    #     try:
+    #         networktest()
+    #     except Exception as e:
+    #         print(e)
+
+    ## 定时执行
+    while True:
         try:
             networktest()
+            # 距离下次爬虫间隔2小时
+            time.sleep(60 * 60 * 2)
         except Exception as e:
             print(e)
