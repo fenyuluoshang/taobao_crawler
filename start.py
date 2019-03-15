@@ -14,4 +14,8 @@ if __name__ == '__main__':
     # curs = c.execute('SELECT count(*) FROM datas WHERE name = :name', {'name': 'hello'})
     # print(curs.fetchone()[0])
     sq.close()
-    networktest()
+    for i in range(0, 100):
+        try:
+            networktest()
+        except Exception as e:
+            print(e)
