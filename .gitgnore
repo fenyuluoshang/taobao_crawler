@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 
+db.sqlite
+
 # local env files
 .env.local
 .env.*.local
