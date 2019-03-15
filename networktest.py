@@ -2,11 +2,14 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 import json
 import sqlite3
 import somedata
+import time
 
 
+## 针对手机淘宝的爬虫
 def networktest():
     # 蓉蓉(chrome)的手机模拟器设置
     # 由于PhantomJS解析有点奇怪，这里就只能调用firefox或者chrome
@@ -19,7 +22,7 @@ def networktest():
 
     driver = webdriver.Chrome(desired_capabilities=chrome_options.to_capabilities())
     # driver = webdriver.PhantomJS()
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(1)
     ## 以正常方式进入首页
     driver.get("https://h5.m.taobao.com/")
     # print(driver.page_source)
@@ -45,7 +48,6 @@ def networktest():
         vb[tittle] = panel.get_attribute('data-spm')
         vk[tittle] = {}
         elelist = panel.find_elements_by_tag_name('span')
-        data = []
         try:
             for k in range(0, len(elelist)):
                 locationtittle = elelist[k].text
@@ -60,23 +62,31 @@ def networktest():
                         print('-' + driver.title)
                         if driver.title == '搜索宝贝':
                             for item in driver.find_elements_by_xpath('//a/h3'):
-                                print(item.text)
-                                curs = c.execute('SELECT count(*) FROM datas WHERE name = :name', {'name': item.text})
+                                curs = c.execute(
+                                    'SELECT count(*) FROM data WHERE name = :name AND tag = :tag AND type = :type ',
+                                    {'name': item.text, 'tag': locationtittle, 'type': tittle})
                                 if curs.fetchone()[0] == 0:
-                                    c.execute('INSERT INTO datas(name ,tag ,type ) VALUES(:name , :tag , :type)',
+                                    c.execute('INSERT INTO data(name ,tag ,type ) VALUES(:name , :tag , :type)',
                                               {'name': item.text, 'tag': locationtittle, 'type': tittle})
+                                    print(item.text + '  ' + locationtittle + '  ' + tittle)
                         else:
+                            ## 尝试滚动
+                            for ls in range(0, 40):
+                                slit = driver.find_elements_by_tag_name('a')
+                                ActionChains(driver).move_to_element(slit[len(slit) - 1]).perform()
+                                # time.sleep(0.1)
                             spanlist = driver.find_elements_by_xpath(
                                 '//span[contains(@style,\'color: rgb(51, 51, 51)\')]')
                             # print(int(len(spanlist) / 4))
                             for item in spanlist:
                                 if len(item.text) > 6:
-                                    print(item.text)
-                                    curs = c.execute('SELECT count(*) FROM datas WHERE name = :name',
-                                                     {'name': item.text})
+                                    curs = c.execute(
+                                        'SELECT count(*) FROM data WHERE name = :name AND tag = :tag AND type = :type ',
+                                        {'name': item.text, 'tag': locationtittle, 'type': tittle})
                                     if curs.fetchone()[0] == 0:
-                                        c.execute('INSERT INTO datas(name ,tag ,type ) VALUES(:name , :tag , :type)',
+                                        c.execute('INSERT INTO data(name ,tag ,type ) VALUES(:name , :tag , :type)',
                                                   {'name': item.text, 'tag': locationtittle, 'type': tittle})
+                                        print(item.text + '  ' + locationtittle + '  ' + tittle)
                     driver.get(selectpage_url)
                     sq.commit()
                     driver.find_element_by_xpath("//div[@axisdirection=\'vertical\']").find_elements_by_tag_name(
@@ -101,7 +111,6 @@ def networktest():
                     (By.XPATH, '//div[@data-spm=\'' + somedata.data_spm[tittle] + '\']')))
             selector = driver.find_element_by_xpath("//div[@axisdirection=\'vertical\']").find_elements_by_tag_name(
                 'span')
-        print(data)
 
     driver.close()
 
