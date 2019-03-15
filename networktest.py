@@ -51,6 +51,8 @@ def networktest():
                     # 呼吸延时
                     time.sleep(5)
                     node = driver.find_element_by_xpath('//div[@data-spm]').find_elements_by_tag_name('span')[k]
+                    if node.text == '热销榜':
+                        continue
                     node.click()
                     if driver.title != '商品分类':
                         print('-' + driver.title)
