@@ -32,7 +32,7 @@ def networktest():
     # 大分类的列表
     selector = driver.find_element_by_xpath("//div[@axisdirection=\'vertical\']").find_elements_by_tag_name('span')
 
-    for i in range(3, len(selector)):
+    for i in range(0, len(selector)):
         stet = selector[i].text
         if stet == '为您推荐' or stet == '人群偏爱' or stet == '花呗分期' or stet == '淘宝租赁' or stet == '飞猪旅行':
             continue
